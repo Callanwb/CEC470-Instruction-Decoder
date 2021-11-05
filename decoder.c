@@ -28,26 +28,57 @@ int main(int argc, char* argv[]){
 }
 
 void fetchNextInstruction(){
-    //code here
-    //check operator
-        //math
+    IR = memory[PC];
+
+    //math operator
+    if((IR & 0x80) == 0x80){
+        //operand
+        //register
         //memory
-        //branch/jump
-        //special 
+    }
+    //memory
+    else if((IR & 0xF0)==0x0){
+        //store 
+        //load
+    }
+    //branch function
+    else if((IR & 0xF8) == 0x10){
+        PC+=3;
+    }
+    //special or illegal opcode
+    else{
+        //nop
+        //halt
+        //illegal opcode
+    }
+
+
 
 
 }
 void executeNextInstruction(){
     //code here
     //math operations
-        // AND
-        // OR
-        // XOR
-        // ADD
-        // SUB
-        // INC
-        // DEC
-        // NOT
+        // AND 000
+        // OR 001
+        // XOR 010
+        // ADD 011
+        // SUB 100
+        // INC 101
+        // DEC 110
+        // NOT 111
+
+
+        //indirect 00
+        //ACC 01
+        //MAR 10
+        //memory 11
+
+        //source
+        //MAR 00
+        //ACC 01
+        //constant 10
+        //memory 11
 
     //memory operations
         // STORE
