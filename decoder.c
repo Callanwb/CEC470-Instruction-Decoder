@@ -5,21 +5,23 @@ Group Members: Callan Bailey, Benigno Digon, Charles Gilmore
 
 */
 
+#include <stdio.h>
 #define HALT_OPCODE 0x19
 
 void fetchNextInstruction(void);
 void executeNextInstruction(void);
+void loadMem(void);
 
 unsigned char memory[65536];
-unsigned char ACC = 0; //16 bit
+unsigned char ACC = 0; //8 bit
 unsigned char IR = 0;  //8 bit
 unsigned char MAR = 0; //16 bit
-unsigned char PC = 0;  //8 bit
+unsigned char PC = 0;  //16 bit
+
 
 int main(int argc, char *argv[])
 {
-    //load memory, maybe make it a function
-
+    loadMem();
     while (memory[PC] != HALT_OPCODE)
     {
         fetchNextInstruction();
@@ -27,7 +29,6 @@ int main(int argc, char *argv[])
     }
     return 0;
 }
-
 void fetchNextInstruction()
 {
     //store instruction in IR
@@ -121,12 +122,48 @@ void fetchNextInstruction()
         }
     }
     //memory
-    else if ((IR & 0xF0) == 0x0)
+    else if ((IR & 0xF0) == 0)
     {
-
-        //store
-        //load
-    }
+        switch(IR & 0x0F)
+        {
+        case(0):// store ACC -> [op] (2 bytes of operand)
+            PC += 3;
+            break;
+        case(1): //store ACC -> op ;this isnt a valid op, need to clarify w/ prof
+            
+            break;
+        case(2): //store ACC -> [MAR] (0 bytes of operand)
+            PC++;
+            break;
+        case(4): //store MAR -> [op] (2 bytes of operand)
+            PC += 3;
+            break;
+        case(5): //store MAR -> op ;this isnt a valid op, need to clarify w/ prof
+            
+            break;
+        case(6): //store MAR -> [MAR] (0 bytes of operand)
+            PC++;
+            break;
+        case(8): //load [op] -> ACC (2 bytes of operand)
+            PC += 3;
+            break;
+        case(9): //load op -> ACC (1 byte of operand)
+            PC += 2;
+            break;
+        case(10): //load [MAR] -> ACC (0 bytes of operand)
+            PC++;
+            break;
+        case(12): //load [op] -> MAR (2 bytes of operand)
+            PC += 3;
+            break;
+        case(13): //load op -> MAR (2 bytes of operand)
+            PC += 3;
+            break;
+        case(14): //load [MAR] -> MAR (0 bytes of operand)
+            PC++;
+            break;
+        }
+    }    
     //branch function
     else if ((IR & 0xF8) == 0x10)
     {
@@ -165,9 +202,57 @@ void executeNextInstruction()
     //memory 11
 
     //memory operations
-    // STORE
-    // LOAD
-
+  
+    /*else*/ if ((IR & 0xF0) == 0)
+    {
+        switch(IR & 0x0F)
+        {
+        case(0):// store ACC -> [op] (2 bytes of operand)
+            memory[memory[PC - 1]] = ACC;
+            break;
+        case(1): //store ACC -> op ;this isnt a valid op, need to clarify w/ prof
+            
+            break;
+        case(2): //store ACC -> [MAR] (0 bytes of operand)
+            memory[MAR] = ACC;
+            break;
+        case(4): //store MAR -> [op] (2 bytes of operand)
+            memory[memory[PC - 1]] = MAR >> 8;//MSB
+            memory[memory[PC - 1] + 1] = MAR - ((MAR >> 8) << 8);//LSB
+            break;
+        case(5): //store MAR -> op ;this isnt a valid op, need to clarify w/ prof
+            
+            break;
+        case(6): //store MAR -> [MAR] (0 bytes of operand)
+            memory[MAR] = MAR >> 8;//MSB
+            memory[MAR + 1] = MAR - ((MAR >> 8) << 8);//LSB
+            break;
+        case(8): //load [op] -> ACC (2 bytes of operand)
+            ACC = memory[memory[PC - 1]];
+            break;
+        case(9): //load op -> ACC (1 byte of operand)
+            ACC = memory[PC - 1];
+            break;
+        case(10): //load [MAR] -> ACC (0 bytes of operand)
+            ACC = memory[MAR];
+            break;
+        case(12): //load [op] -> MAR (2 bytes of operand)
+            ACC = memory[memory[PC - 2]];//MSB
+            ACC = ACC << 8;
+            ACC += memory[memory[PC - 1]];//LSB
+            break;
+        case(13): //load op -> MAR (2 bytes of operand)
+            MAR = memory[PC - 2];//MSB
+            MAR = ACC << 8;
+            MAR += memory[PC - 1];//LSB
+            break;
+        case(14): //load [MAR] -> MAR (0 bytes of operand)
+            MAR = memory[MAR];//MSB
+            MAR = MAR << 8;
+            MAR += memory[MAR + 1];//LSB
+            break;
+        }
+    }
     //branch/jump
     // BRA
     // BRZ
@@ -181,4 +266,13 @@ void executeNextInstruction()
     // NOP
     // HALT
     // OTHER
+}
+void loadMem(){
+    FILE *mem;
+    mem = fopen("mem_in.txt", "r");
+    int i = 0;
+    while (fscanf(mem, "%x", &memory[i]) != EOF)
+    {
+        i++;
+    }
 }
