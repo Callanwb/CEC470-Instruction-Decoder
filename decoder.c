@@ -266,22 +266,27 @@ void executeNextInstruction()
         break;
     // BRZ = 0b001 (Branch if ACC = 0)
     case (0b00010001):
-
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     // BNE = 0b010 (Branch if ACC != 0)
     case (0b00010010):
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     // BLT = 0b011 (Branch if ACC < 0)
     case (0b00010011):
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     // BLE = 0b100 (Branch if ACC <= 0)
     case (0b00010100):
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     // BGT = 0b101 (Branch if ACC > 0)
     case (0b00010101):
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     // BGE = 0b110 (Branch if ACC >= 0)
     case (0b00010110):
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     }
     // Special Opcodes
