@@ -112,11 +112,13 @@ void fetchNextInstruction()
             }
         }
         //not on register
-        else if ((IR & 0x0C) != 0b1100){
+        else if ((IR & 0x0C) != 0b1100)
+        {
             PC++;
         }
         //not on memory
-        else{
+        else
+        {
             PC += 3;
         }
     }
@@ -168,17 +170,53 @@ void executeNextInstruction()
     // STORE
     // LOAD
 
-    //branch/jump
-    // BRA
-    // BRZ
-    // BNE
-    // BLT
-    // BLE
-    // BGT
-    // BGE
+    // Branch/Jumps:
+    // If the most significant five bits are 00010, then the opcode represents an unconditional or
+    // conditional branch or jump. The opcode is always followed by a 16-bit operand that serves as
+    // the memory address.
+    switch (IR & 0x07)
+    {
+    // BRA = 0b000 (Unconditional Branch/Branch always)
+    case (0b00010000):
+        (memory[PC + 1] << 8) + memory[PC + 2];
+        break;
+    // BRZ = 0b001 (Branch if ACC = 0)
+    case (0b00010001):
 
-    //special
-    // NOP
-    // HALT
-    // OTHER
+        break;
+    // BNE = 0b010 (Branch if ACC != 0)
+    case (0b00010010):
+        break;
+    // BLT = 0b011 (Branch if ACC < 0)
+    case (0b00010011):
+        break;
+    // BLE = 0b100 (Branch if ACC <= 0)
+    case (0b00010100):
+        break;
+    // BGT = 0b101 (Branch if ACC > 0)
+    case (0b00010101):
+        break;
+    // BGE = 0b110 (Branch if ACC >= 0)
+    case (0b00010110):
+        break;
+    }
+    // Special Opcodes
+
+    // No Operation (NOP) - DO NOTHING
+    // fetchNextInstruction() increment PC by 1
+    if (IR == 0x18)
+    {
+    }
+
+    // HALT/ Stop processor
+    else if (IR == HALT_OPCODE)
+    {
+        // Halt? exit()? stop()? sleep()?
+        sleep();
+    }
+    // Illegal
+    else
+    {
+        printf("Illegal Opcode!");
+    }
 }
