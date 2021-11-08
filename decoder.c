@@ -3,11 +3,12 @@ CEC 470 Group Project
 Decoder
 Group Members: Callan Bailey, Benigno Digon, Charles Gilmore
 */
-
+#include <stdio.h>
 #define HALT_OPCODE 0x19
 
 void fetchNextInstruction(void);
 void executeNextInstruction(void);
+void loadMem(void);
 
 unsigned char memory[65536];
 unsigned char ACC = 0; //8 bit
@@ -299,5 +300,14 @@ void executeNextInstruction()
     else
     {
         printf("Illegal Opcode!");
+    }
+}
+void loadMem(){
+    FILE *mem;
+    mem = fopen("mem_in.txt", "r");
+    int i = 0;
+    while (fscanf(mem, "%x", &memory[i]) != EOF)
+    {
+        i++;
     }
 }
