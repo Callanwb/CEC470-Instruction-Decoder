@@ -2,7 +2,6 @@
 CEC 470 Group Project
 Decoder
 Group Members: Callan Bailey, Benigno Digon, Charles Gilmore
-
 */
 #include <stdio.h>
 #define HALT_OPCODE 0x19
@@ -208,7 +207,7 @@ void executeNextInstruction()
         switch(IR & 0x0F)
         {
         case(0):// store ACC -> [op] (2 bytes of operand)
-            memory[memory[PC - 1]] = ACC;
+            memory[(memory[PC - 2] << 8) + memory[PC - 1]] = ACC;
             break;
         case(1): //store ACC -> op ;this isnt a valid op, need to clarify w/ prof
             
@@ -217,8 +216,8 @@ void executeNextInstruction()
             memory[MAR] = ACC;
             break;
         case(4): //store MAR -> [op] (2 bytes of operand)
-            memory[memory[PC - 1]] = MAR >> 8;//MSB
-            memory[memory[PC - 1] + 1] = MAR - ((MAR >> 8) << 8);//LSB
+            memory[(memory[PC - 2] << 8) + memory[PC - 1]] = MAR >> 8;//MSB
+            memory[(memory[PC - 2] << 8) + memory[PC - 1] + 1] = MAR - ((MAR >> 8) << 8);//LSB
             break;
         case(5): //store MAR -> op ;this isnt a valid op, need to clarify w/ prof
             
@@ -228,7 +227,7 @@ void executeNextInstruction()
             memory[MAR + 1] = MAR - ((MAR >> 8) << 8);//LSB
             break;
         case(8): //load [op] -> ACC (2 bytes of operand)
-            ACC = memory[memory[PC - 1]];
+            ACC = memory[(memory[PC - 2] << 8) + memory[PC - 1]];
             break;
         case(9): //load op -> ACC (1 byte of operand)
             ACC = memory[PC - 1];
@@ -237,9 +236,9 @@ void executeNextInstruction()
             ACC = memory[MAR];
             break;
         case(12): //load [op] -> MAR (2 bytes of operand)
-            ACC = memory[memory[PC - 2]];//MSB
-            ACC = ACC << 8;
-            ACC += memory[memory[PC - 1]];//LSB
+            MAR = memory[memory[PC - 2]];//MSB
+            MAR = MAR << 8;
+            MAR += memory[memory[PC - 1]];//LSB
             break;
         case(13): //load op -> MAR (2 bytes of operand)
             MAR = memory[PC - 2];//MSB
