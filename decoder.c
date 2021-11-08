@@ -125,9 +125,76 @@ void fetchNextInstruction()
     //memory
     else if ((IR & 0xF0) == 0x0)
     {
-
         //store
+        if((IR & 0x08) == 0x0){
+            //ACC
+            if((IR & 0x04) == 0x00){
+                //register addressing data is in a register
+                if((IR & 0x3) == 0){
+                    //store ACC into memory at operand
+                    PC+=3;
+                }
+                else if((IR & 0x2) == 0){
+                    //operand is constant
+                    PC+=2;
+                }
+                else{
+                    //indirect MAR used as pointer
+                    PC++;
+                }
+            }
+            //MAR index register
+            else{
+                //register addressing data is in a register
+                if((IR & 0x3) == 0){
+                    //store ACC into memory at operand
+                    PC+=3;
+                }
+                else if((IR & 0x2) == 0){
+                    //operand is constant
+                    PC+=2;
+                }
+                else{
+                    //indirect MAR used as pointer
+                    PC++;
+                }
+            }
+        }
         //load
+        else{
+            //ACC
+            if((IR & 0x04) == 0x00){
+                //register addressing data is in a register
+                if((IR & 0x3) == 0){
+                    //store ACC into memory at operand
+                    PC+=3;
+                }
+                else if((IR & 0x2) == 0){
+                    //operand is constant
+                    PC+=2;
+                }
+                else{
+                    //indirect MAR used as pointer
+                    PC++;
+                }
+            }
+            //MAR index register
+            else{
+                //register addressing data is in a register
+                if((IR & 0x3) == 0){
+                    //store ACC into memory at operand
+                    PC+=3;
+                }
+                else if((IR & 0x2) == 0){
+                    //operand is constant
+                    PC+=2;
+                }
+                else{
+                    //indirect MAR used as pointer
+                    PC++;
+                }
+            }
+        }
     }
     //branch function
     else if ((IR & 0xF8) == 0x10)
