@@ -2,7 +2,6 @@
 CEC 470 Group Project
 Decoder
 Group Members: Callan Bailey, Benigno Digon, Charles Gilmore
-
 */
 
 #define HALT_OPCODE 0x19
@@ -11,10 +10,10 @@ void fetchNextInstruction(void);
 void executeNextInstruction(void);
 
 unsigned char memory[65536];
-unsigned char ACC = 0; //16 bit
+unsigned char ACC = 0; //8 bit
 unsigned char IR = 0;  //8 bit
 unsigned char MAR = 0; //16 bit
-unsigned char PC = 0;  //8 bit
+unsigned char PC = 0;  //16 bit
 
 int main(int argc, char *argv[])
 {
@@ -123,79 +122,48 @@ void fetchNextInstruction()
         }
     }
     //memory
-    else if ((IR & 0xF0) == 0x0)
+    else if ((IR & 0xF0) == 0)
     {
-        //store
-        if((IR & 0x08) == 0x0){
-            //ACC
-            if((IR & 0x04) == 0x00){
-                //register addressing data is in a register
-                if((IR & 0x3) == 0){
-                    //store ACC into memory at operand
-                    PC+=3;
-                }
-                else if((IR & 0x2) == 0){
-                    //operand is constant
-                    PC+=2;
-                }
-                else{
-                    //indirect MAR used as pointer
-                    PC++;
-                }
-            }
-            //MAR index register
-            else{
-                //register addressing data is in a register
-                if((IR & 0x3) == 0){
-                    //store ACC into memory at operand
-                    PC+=3;
-                }
-                else if((IR & 0x2) == 0){
-                    //operand is constant
-                    PC+=2;
-                }
-                else{
-                    //indirect MAR used as pointer
-                    PC++;
-                }
-            }
+        switch(IR & 0x0F)
+        {
+        case(0):// store ACC -> [op] (2 bytes of operand)
+            PC += 3;
+            break;
+        case(1): //store ACC -> op ;this isnt a valid op, need to clarify w/ prof
+            
+            break;
+        case(2): //store ACC -> [MAR] (0 bytes of operand)
+            PC++;
+            break;
+        case(4): //store MAR -> [op] (2 bytes of operand)
+            PC += 3;
+            break;
+        case(5): //store MAR -> op ;this isnt a valid op, need to clarify w/ prof
+            
+            break;
+        case(6): //store MAR -> [MAR] (0 bytes of operand)
+            PC++;
+            break;
+        case(8): //load [op] -> ACC (2 bytes of operand)
+            PC += 3;
+            break;
+        case(9): //load op -> ACC (1 byte of operand)
+            PC += 2;
+            break;
+        case(10): //load [MAR] -> ACC (0 bytes of operand)
+            PC++;
+            break;
+        case(12): //load [op] -> MAR (2 bytes of operand)
+            PC += 3;
+            break;
+        case(13): //load op -> MAR (2 bytes of operand)
+            PC += 3;
+            break;
+        case(14): //load [MAR] -> MAR (0 bytes of operand)
+            PC++;
+            break;
         }
-        //load
-        else{
-            //ACC
-            if((IR & 0x04) == 0x00){
-                //register addressing data is in a register
-                if((IR & 0x3) == 0){
-                    //store ACC into memory at operand
-                    PC+=3;
-                }
-                else if((IR & 0x2) == 0){
-                    //operand is constant
-                    PC+=2;
-                }
-                else{
-                    //indirect MAR used as pointer
-                    PC++;
-                }
-            }
-            //MAR index register
-            else{
-                //register addressing data is in a register
-                if((IR & 0x3) == 0){
-                    //store ACC into memory at operand
-                    PC+=3;
-                }
-                else if((IR & 0x2) == 0){
-                    //operand is constant
-                    PC+=2;
-                }
-                else{
-                    //indirect MAR used as pointer
-                    PC++;
-                }
-            }
-        }
-    }
+    }   
     //branch function
     else if ((IR & 0xF8) == 0x10)
     {
@@ -234,9 +202,56 @@ void executeNextInstruction()
     //memory 11
 
     //memory operations
-    // STORE
-    // LOAD
-
+    /*else*/ if ((IR & 0xF0) == 0)
+    {
+        switch(IR & 0x0F)
+        {
+        case(0):// store ACC -> [op] (2 bytes of operand)
+            memory[(memory[PC - 2] << 8) + memory[PC - 1]] = ACC;
+            break;
+        case(1): //store ACC -> op ;this isnt a valid op, need to clarify w/ prof
+            
+            break;
+        case(2): //store ACC -> [MAR] (0 bytes of operand)
+            memory[MAR] = ACC;
+            break;
+        case(4): //store MAR -> [op] (2 bytes of operand)
+            memory[(memory[PC - 2] << 8) + memory[PC - 1]] = MAR >> 8;//MSB
+            memory[(memory[PC - 2] << 8) + memory[PC - 1] + 1] = MAR - ((MAR >> 8) << 8);//LSB
+            break;
+        case(5): //store MAR -> op ;this isnt a valid op, need to clarify w/ prof
+            
+            break;
+        case(6): //store MAR -> [MAR] (0 bytes of operand)
+            memory[MAR] = MAR >> 8;//MSB
+            memory[MAR + 1] = MAR - ((MAR >> 8) << 8);//LSB
+            break;
+        case(8): //load [op] -> ACC (2 bytes of operand)
+            ACC = memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+            break;
+        case(9): //load op -> ACC (1 byte of operand)
+            ACC = memory[PC - 1];
+            break;
+        case(10): //load [MAR] -> ACC (0 bytes of operand)
+            ACC = memory[MAR];
+            break;
+        case(12): //load [op] -> MAR (2 bytes of operand)
+            MAR = memory[memory[PC - 2]];//MSB
+            MAR = MAR << 8;
+            MAR += memory[memory[PC - 1]];//LSB
+            break;
+        case(13): //load op -> MAR (2 bytes of operand)
+            MAR = memory[PC - 2];//MSB
+            MAR = ACC << 8;
+            MAR += memory[PC - 1];//LSB
+            break;
+        case(14): //load [MAR] -> MAR (0 bytes of operand)
+            MAR = memory[MAR];//MSB
+            MAR = MAR << 8;
+            MAR += memory[MAR + 1];//LSB
+            break;
+        }
+    }
     // Branch/Jumps:
     // If the most significant five bits are 00010, then the opcode represents an unconditional or
     // conditional branch or jump. The opcode is always followed by a 16-bit operand that serves as
@@ -249,7 +264,6 @@ void executeNextInstruction()
         break;
     // BRZ = 0b001 (Branch if ACC = 0)
     case (0b00010001):
-
         break;
     // BNE = 0b010 (Branch if ACC != 0)
     case (0b00010010):
