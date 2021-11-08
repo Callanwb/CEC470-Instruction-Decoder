@@ -3,6 +3,7 @@ CEC 470 Group Project
 Decoder
 Group Members: Callan Bailey, Benigno Digon, Charles Gilmore
 */
+
 #include <stdio.h>
 #define HALT_OPCODE 0x19
 
@@ -16,9 +17,9 @@ unsigned char IR = 0;  //8 bit
 unsigned char MAR = 0; //16 bit
 unsigned char PC = 0;  //16 bit
 
+
 int main(int argc, char *argv[])
 {
-    //load memory, maybe make it a function
     loadMem();
     while (memory[PC] != HALT_OPCODE)
     {
@@ -27,7 +28,6 @@ int main(int argc, char *argv[])
     }
     return 0;
 }
-
 void fetchNextInstruction()
 {
     //store instruction in IR
@@ -201,7 +201,7 @@ void executeNextInstruction()
     //memory 11
 
     //memory operations
-
+  
     /*else*/ if ((IR & 0xF0) == 0)
     {
         switch(IR & 0x0F)
@@ -252,7 +252,6 @@ void executeNextInstruction()
             break;
         }
     }
-
     //branch/jump
     // BRA
     // BRZ
