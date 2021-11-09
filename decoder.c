@@ -10,6 +10,7 @@ Group Members: Callan Bailey, Benigno Digon, Charles Gilmore
 void fetchNextInstruction(void);
 void executeNextInstruction(void);
 void loadMem(void);
+void saveMem(void);
 
 unsigned char memory[65536];
 unsigned char ACC = 0; //8 bit
@@ -26,6 +27,7 @@ int main(int argc, char *argv[])
         fetchNextInstruction();
         executeNextInstruction();
     }
+    saveMem();
     return 0;
 }
 void fetchNextInstruction()
@@ -274,4 +276,16 @@ void loadMem(){
     {
         i++;
     }
+    fclose(mem);
+}
+void saveMem(){
+    FILE *mem;
+    mem = fopen("mem_out.txt", "w");
+    int i = 0;
+    while (i < 65536)
+    {
+        fprintf(mem, "%x %x %x %x %x %x %x %x %x %x\n", &memory[i], &memory[i + 1], &memory[i + 2], &memory[i + 3], &memory[i + 4], &memory[i + 5], &memory[i + 6], &memory[i + 7], &memory[i + 8], &memory[i + 9]);
+        i += 10;
+    }
+    fclose(mem);
 }
