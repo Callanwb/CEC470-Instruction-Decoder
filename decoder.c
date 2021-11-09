@@ -124,7 +124,48 @@ void fetchNextInstruction()
         }
     }
     //memory
-        
+    else if ((IR & 0xF0) == 0)
+    {
+        switch(IR & 0x0F)
+        {
+        case(0):// store ACC -> [op] (2 bytes of operand)
+            PC += 3;
+            break;
+        case(1): //store ACC -> op ;this isnt a valid op, need to clarify w/ prof
+            
+            break;
+        case(2): //store ACC -> [MAR] (0 bytes of operand)
+            PC++;
+            break;
+        case(4): //store MAR -> [op] (2 bytes of operand)
+            PC += 3;
+            break;
+        case(5): //store MAR -> op ;this isnt a valid op, need to clarify w/ prof
+            
+            break;
+        case(6): //store MAR -> [MAR] (0 bytes of operand)
+            PC++;
+            break;
+        case(8): //load [op] -> ACC (2 bytes of operand)
+            PC += 3;
+            break;
+        case(9): //load op -> ACC (1 byte of operand)
+            PC += 2;
+            break;
+        case(10): //load [MAR] -> ACC (0 bytes of operand)
+            PC++;
+            break;
+        case(12): //load [op] -> MAR (2 bytes of operand)
+            PC += 3;
+            break;
+        case(13): //load op -> MAR (2 bytes of operand)
+            PC += 3;
+            break;
+        case(14): //load [MAR] -> MAR (0 bytes of operand)
+            PC++;
+            break;
+        }
+    }    
     //branch function
     else if ((IR & 0xF8) == 0x10)
     {
