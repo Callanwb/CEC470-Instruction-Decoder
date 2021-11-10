@@ -207,12 +207,10 @@ void executeNextInstruction()
                     //MAR is pointer MAR is pointer
                     case 0b0000:
                         memory[MAR] &= memory[MAR];
-                        PC++;
                         break;
                     //MAR is pointer ACC 
                     case 0b0001:
                         memory[MAR] &= ACC;
-                        PC++;
                         break;
                     //MAR is pointer constant
                     case 0b0010:
@@ -241,12 +239,10 @@ void executeNextInstruction()
                     //MAR is destination MAR is pointer
                     case 0b1000:
                         MAR &= memory[MAR];
-                        PC++;
                         break;
                     //MAR is destination ACC 
                     case 0b1001:
                         MAR &= ACC;
-                        PC++;
                         break;
                     //MAR is destination constant
                     case 0b1010:
@@ -259,12 +255,10 @@ void executeNextInstruction()
                     //memory address MAR is pointer
                     case 0b1100:
                         memory[(memory[PC - 2] << 8) + memory[PC -1]] &= memory[MAR];
-                        PC++;
                         break;
                     //memory address ACC 
                     case 0b1101:
                         memory[(memory[PC - 2] << 8) + memory[PC -1]] &= ACC;
-                        PC++;
                         break;
                     //memory address constant
                     case 0b1110:
@@ -282,12 +276,10 @@ void executeNextInstruction()
                     //MAR is pointer MAR is pointer
                     case 0b0000:
                         memory[MAR] |= memory[MAR];
-                        PC++;
                         break;
                     //MAR is pointer ACC 
                     case 0b0001:
                         memory[MAR] |= ACC;
-                        PC++;
                         break;
                     //MAR is pointer constant
                     case 0b0010:
@@ -316,12 +308,10 @@ void executeNextInstruction()
                     //MAR is destination MAR is pointer
                     case 0b1000:
                         MAR |= memory[MAR];
-                        PC++;
                         break;
                     //MAR is destination ACC 
                     case 0b1001:
                         MAR |= ACC;
-                        PC++;
                         break;
                     //MAR is destination constant
                     case 0b1010:
@@ -334,12 +324,10 @@ void executeNextInstruction()
                     //memory address MAR is pointer
                     case 0b1100:
                         memory[(memory[PC - 2] << 8) + memory[PC -1]] |= memory[MAR];
-                        PC++;
                         break;
                     //memory address ACC 
                     case 0b1101:
                         memory[(memory[PC - 2] << 8) + memory[PC -1]] |= ACC;
-                        PC++;
                         break;
                     //memory address constant
                     case 0b1110:
@@ -357,12 +345,10 @@ void executeNextInstruction()
                     //MAR is pointer MAR is pointer
                     case 0b0000:
                         memory[MAR] ^= memory[MAR];
-                        PC++;
                         break;
                     //MAR is pointer ACC 
                     case 0b0001:
                         memory[MAR] ^= ACC;
-                        PC++;
                         break;
                     //MAR is pointer constant
                     case 0b0010:
@@ -391,12 +377,10 @@ void executeNextInstruction()
                     //MAR is destination MAR is pointer
                     case 0b1000:
                         MAR ^= memory[MAR];
-                        PC++;
                         break;
                     //MAR is destination ACC 
                     case 0b1001:
                         MAR ^= ACC;
-                        PC++;
                         break;
                     //MAR is destination constant
                     case 0b1010:
@@ -409,12 +393,10 @@ void executeNextInstruction()
                     //memory address MAR is pointer
                     case 0b1100:
                         memory[(memory[PC - 2] << 8) + memory[PC -1]] ^= memory[MAR];
-                        PC++;
                         break;
                     //memory address ACC 
                     case 0b1101:
                         memory[(memory[PC - 2] << 8) + memory[PC -1]] ^= ACC;
-                        PC++;
                         break;
                     //memory address constant
                     case 0b1110:
@@ -431,12 +413,10 @@ void executeNextInstruction()
                     //MAR is pointer MAR is pointer
                     case 0b0000:
                         memory[MAR] += memory[MAR];
-                        PC++;
                         break;
                     //MAR is pointer ACC 
                     case 0b0001:
                         memory[MAR] += ACC;
-                        PC++;
                         break;
                     //MAR is pointer constant
                     case 0b0010:
@@ -465,12 +445,10 @@ void executeNextInstruction()
                     //MAR is destination MAR is pointer
                     case 0b1000:
                         MAR += memory[MAR];
-                        PC++;
                         break;
                     //MAR is destination ACC 
                     case 0b1001:
                         MAR += ACC;
-                        PC++;
                         break;
                     //MAR is destination constant
                     case 0b1010:
@@ -483,12 +461,10 @@ void executeNextInstruction()
                     //memory address MAR is pointer
                     case 0b1100:
                         memory[(memory[PC - 2] << 8) + memory[PC -1]] += memory[MAR];
-                        PC++;
                         break;
                     //memory address ACC 
                     case 0b1101:
                         memory[(memory[PC - 2] << 8) + memory[PC -1]] += ACC;
-                        PC++;
                         break;
                     //memory address constant
                     case 0b1110:
@@ -506,12 +482,10 @@ void executeNextInstruction()
                     //MAR is pointer MAR is pointer
                     case 0b0000:
                         memory[MAR] -= memory[MAR];
-                        PC++;
                         break;
                     //MAR is pointer ACC 
                     case 0b0001:
                         memory[MAR] -= ACC;
-                        PC++;
                         break;
                     //MAR is pointer constant
                     case 0b0010:
@@ -540,12 +514,10 @@ void executeNextInstruction()
                     //MAR is destination MAR is pointer
                     case 0b1000:
                         MAR -= memory[MAR];
-                        PC++;
                         break;
                     //MAR is destination ACC 
                     case 0b1001:
                         MAR -= ACC;
-                        PC++;
                         break;
                     //MAR is destination constant
                     case 0b1010:
@@ -558,12 +530,10 @@ void executeNextInstruction()
                     //memory address MAR is pointer
                     case 0b1100:
                         memory[(memory[PC - 2] << 8) + memory[PC -1]] -= memory[MAR];
-                        PC++;
                         break;
                     //memory address ACC 
                     case 0b1101:
                         memory[(memory[PC - 2] << 8) + memory[PC -1]] -= ACC;
-                        PC++;
                         break;
                     //memory address constant
                     case 0b1110:
