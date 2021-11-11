@@ -756,6 +756,7 @@ void executeNextInstruction()
     else
     {
         printf("Illegal Opcode!");
+        exit(1);
     }
 }
 void loadMem()
