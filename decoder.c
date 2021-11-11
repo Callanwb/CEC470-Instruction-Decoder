@@ -6,6 +6,7 @@ Group Members: Callan Bailey, Benigno Digon, Charles Gilmore
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #define HALT_OPCODE 0x19
 
 void fetchNextInstruction(void);
@@ -18,7 +19,6 @@ unsigned char ACC = 0; //8 bit
 unsigned char IR = 0;  //8 bit
 unsigned char MAR = 0; //16 bit
 unsigned char PC = 0;  //16 bit
-
 
 int main(int argc, char *argv[])
 {
@@ -115,74 +115,72 @@ void fetchNextInstruction()
             }
         }
         //not on register
-        else if ((IR & 0x0C) != 0b1100){
+        else if ((IR & 0x0C) != 0b1100)
+        {
             PC++;
         }
         //not on memory
-        else{
+        else
+        {
             PC += 3;
         }
     }
     //memory
     else if ((IR & 0xF0) == 0)
     {
-        switch(IR & 0x0F)
+        switch (IR & 0x0F)
         {
-        case(0):// store ACC -> [op] (2 bytes of operand)
+        case (0): // store ACC -> [op] (2 bytes of operand)
             PC += 3;
-            break;
-        case(1): //store ACC -> op ;this isnt a valid op, need to clarify w/ prof
-            
             break;
         case(2): //store ACC -> [MAR] (0 bytes of operand)
             PC++;
             break;
-        case(4): //store MAR -> [op] (2 bytes of operand)
+        case (4): //store MAR -> [op] (2 bytes of operand)
             PC += 3;
-            break;
-        case(5): //store MAR -> op ;this isnt a valid op, need to clarify w/ prof
-            
             break;
         case(6): //store MAR -> [MAR] (0 bytes of operand)
             PC++;
             break;
-        case(8): //load [op] -> ACC (2 bytes of operand)
+        case (8): //load [op] -> ACC (2 bytes of operand)
             PC += 3;
             break;
-        case(9): //load op -> ACC (1 byte of operand)
+        case (9): //load op -> ACC (1 byte of operand)
             PC += 2;
             break;
-        case(10): //load [MAR] -> ACC (0 bytes of operand)
+        case (10): //load [MAR] -> ACC (0 bytes of operand)
             PC++;
             break;
-        case(12): //load [op] -> MAR (2 bytes of operand)
+        case (12): //load [op] -> MAR (2 bytes of operand)
             PC += 3;
             break;
-        case(13): //load op -> MAR (2 bytes of operand)
+        case (13): //load op -> MAR (2 bytes of operand)
             PC += 3;
             break;
-        case(14): //load [MAR] -> MAR (0 bytes of operand)
+        case (14): //load [MAR] -> MAR (0 bytes of operand)
             PC++;
             break;
         }
-    }    
+    }
     //branch function
     else if ((IR & 0xF8) == 0x10)
     {
         //increment PC always followed by 16 bits
-        PC+=3;
+        PC += 3;
     }
     //special or illegal opcode
     else
     {
         //nop
-        if(IR == 0x18){
+        if (IR == 0x18)
+        {
             PC++;
         }
         //halt
         //don't do anything if halt, 0x19, allow while loop to end
         //illegal opcode
-        else{
+        else
+        {
             exit(1);
         }
     }
@@ -608,64 +606,58 @@ void executeNextInstruction()
         }
     }
 
-
     //memory operations
     if ((IR & 0xF0) == 0)
     {
-        switch(IR & 0x0F)
+        switch (IR & 0x0F)
         {
         case(0):// store ACC -> [op] (2 bytes of operand)
             memory[(memory[PC - 2] << 8) + memory[PC - 1]] = ACC;
             break;
-        case(1): //store ACC -> op ;this isnt a valid op
-            
-            break;
         case(2): //store ACC -> [MAR] (0 bytes of operand)
             memory[MAR] = ACC;
             break;
-        case(4): //store MAR -> [op] (2 bytes of operand)
-            memory[(memory[PC - 2] << 8) + memory[PC - 1]] = MAR >> 8;//MSB
-            memory[(memory[PC - 2] << 8) + memory[PC - 1] + 1] = MAR - ((MAR >> 8) << 8);//LSB
-            break;
-        case(5): //store MAR -> op ;this isnt a valid op
-            
-            break;
+        case (4):                                                                         //store MAR -> [op] (2 bytes of operand)
+            memory[(memory[PC - 2] << 8) + memory[PC - 1]] = MAR >> 8;                    //MSB
+            memory[(memory[PC - 2] << 8) + memory[PC - 1] + 1] = MAR - ((MAR >> 8) << 8); //LSB
+            break;\
         case(6): //store MAR -> [MAR] (0 bytes of operand)
             memory[MAR] = MAR >> 8;//MSB
-            memory[MAR + 1] = MAR - ((MAR >> 8) << 8);//LSB
+            memory[MAR + 1] = MAR - ((MAR >> 8) << 8);//LSB\
             break;
-        case(8): //load [op] -> ACC (2 bytes of operand)
+        case (8): //load [op] -> ACC (2 bytes of operand)
+            ACC = memory[memory[PC - 1]];
+
             ACC = memory[(memory[PC - 2] << 8) + memory[PC - 1]];
             break;
-        case(9): //load op -> ACC (1 byte of operand)
+        case (9): //load op -> ACC (1 byte of operand)
             ACC = memory[PC - 1];
             break;
-        case(10): //load [MAR] -> ACC (0 bytes of operand)
+        case (10): //load [MAR] -> ACC (0 bytes of operand)
             ACC = memory[MAR];
             break;
-        case(12): //load [op] -> MAR (2 bytes of operand)
-            MAR = memory[memory[PC - 2]];//MSB
+        case (12):                        //load [op] -> MAR (2 bytes of operand)
+            MAR = memory[memory[PC - 2]]; //MSB
             MAR = MAR << 8;
-            MAR += memory[memory[PC - 1]];//LSB
+            MAR += memory[memory[PC - 1]]; //LSB
             break;
-        case(13): //load op -> MAR (2 bytes of operand)
-            MAR = memory[PC - 2];//MSB
+        case (13):                //load op -> MAR (2 bytes of operand)
+            MAR = memory[PC - 2]; //MSB
             MAR = ACC << 8;
-            MAR += memory[PC - 1];//LSB
+            MAR += memory[PC - 1]; //LSB
             break;
-        case(14): //load [MAR] -> MAR (0 bytes of operand)
-            MAR = memory[MAR];//MSB
+        case (14):             //load [MAR] -> MAR (0 bytes of operand)
+            MAR = memory[MAR]; //MSB
             MAR = MAR << 8;
-            MAR += memory[MAR + 1];//LSB
+            MAR += memory[MAR + 1]; //LSB
             break;
         }
     }
-
     // Branch/Jumps:
     // If the most significant five bits are 00010, then the opcode represents an unconditional or
     // conditional branch or jump. The opcode is always followed by a 16-bit operand that serves as
     // the memory address.
-    switch (IR & 0x07)
+    switch (IR & 0x87)
     {
     // BRA = 0b000 (Unconditional Branch/Branch always)
     case (0b00010000):
@@ -673,29 +665,50 @@ void executeNextInstruction()
         break;
     // BRZ = 0b001 (Branch if ACC = 0)
     case (0b00010001):
-
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     // BNE = 0b010 (Branch if ACC != 0)
     case (0b00010010):
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     // BLT = 0b011 (Branch if ACC < 0)
     case (0b00010011):
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     // BLE = 0b100 (Branch if ACC <= 0)
     case (0b00010100):
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     // BGT = 0b101 (Branch if ACC > 0)
     case (0b00010101):
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     // BGE = 0b110 (Branch if ACC >= 0)
     case (0b00010110):
+        (memory[PC + 1] << IR) + memory[PC + 2];
         break;
     }
     // Special Opcodes
 
-  
+    // No Operation (NOP) - DO NOTHING
+    // fetchNextInstruction() increment PC by 1
+    if (IR == 0x18)
+    {
+    }
+
+    // HALT/ Stop processor
+    else if (IR == HALT_OPCODE)
+    {
+        // Halt? exit()? stop()? sleep()?
+    }
+    // Illegal
+    else
+    {
+        printf("Illegal Opcode!");
+    }
 }
-void loadMem(){
+void loadMem()
+{
     FILE *mem;
     mem = fopen("mem_in.txt", "r");
     int i = 0;
@@ -705,13 +718,14 @@ void loadMem(){
     }
     fclose(mem);
 }
-void saveMem(){
+void saveMem()
+{
     FILE *mem;
     mem = fopen("mem_out.txt", "w");
     int i = 0;
     while (i < 65536)
     {
-        fprintf(mem, "%x %x %x %x %x %x %x %x %x %x\n", &memory[i], &memory[i + 1], &memory[i + 2], &memory[i + 3], &memory[i + 4], &memory[i + 5], &memory[i + 6], &memory[i + 7], &memory[i + 8], &memory[i + 9]);
+        fprintf(mem, "%x %x %x %x %x %x %x %x %x %x\n", memory[i], memory[i + 1], memory[i + 2], memory[i + 3], memory[i + 4], memory[i + 5], memory[i + 6], memory[i + 7], memory[i + 8], memory[i + 9]);
         i += 10;
     }
     fclose(mem);
