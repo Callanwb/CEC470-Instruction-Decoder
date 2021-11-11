@@ -11,6 +11,7 @@ Group Members: Callan Bailey, Benigno Digon, Charles Gilmore
 void fetchNextInstruction(void);
 void executeNextInstruction(void);
 void loadMem(void);
+void saveMem(void);
 
 unsigned char memory[65536];
 unsigned char ACC = 0; //8 bit
@@ -26,6 +27,7 @@ int main(int argc, char *argv[])
         fetchNextInstruction();
         executeNextInstruction();
     }
+    saveMem();
     return 0;
 }
 void fetchNextInstruction()
@@ -168,14 +170,24 @@ void fetchNextInstruction()
     //branch function
     else if ((IR & 0xF8) == 0x10)
     {
-        //increment PC
+        //increment PC always followed by 16 bits
+        PC += 3;
     }
     //special or illegal opcode
     else
     {
         //nop
+        if (IR == 0x18)
+        {
+            PC++;
+        }
         //halt
+        //don't do anything if halt, 0x19, allow while loop to end
         //illegal opcode
+        else
+        {
+            exit(1);
+        }
     }
 }
 void executeNextInstruction()
@@ -190,21 +202,453 @@ void executeNextInstruction()
     // INC 101
     // DEC 110
     // NOT 111
-
-    //indirect 00
-    //ACC 01
-    //MAR 10
-    //memory 11
-
-    //source
-    //MAR 00
-    //ACC 01
-    //constant 10
-    //memory 11
+    if ((IR & 0x80) == 0x80)
+    {
+        switch ((IR & 0x70) >> 4)
+        {
+        //AND
+        case 0:
+            switch (IR & 0x0F)
+            {
+            //MAR is pointer MAR is pointer
+            case 0b0000:
+                memory[MAR] &= memory[MAR];
+                PC++;
+                break;
+            //MAR is pointer ACC
+            case 0b0001:
+                memory[MAR] &= ACC;
+                PC++;
+                break;
+            //MAR is pointer constant
+            case 0b0010:
+                memory[MAR] &= memory[PC - 1];
+                break;
+            //MAR is pointer memory address
+            case 0b0011:
+                memory[MAR] &= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //ACC MAR is pointer
+            case 0b0100:
+                ACC &= memory[MAR];
+                break;
+            //ACC ACC
+            case 0b0101:
+                ACC &= ACC;
+                break;
+            //ACC constant
+            case 0b0110:
+                ACC &= memory[PC - 1];
+                break;
+            //ACC memory address
+            case 0b0111:
+                ACC &= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //MAR is destination MAR is pointer
+            case 0b1000:
+                MAR &= memory[MAR];
+                PC++;
+                break;
+            //MAR is destination ACC
+            case 0b1001:
+                MAR &= ACC;
+                PC++;
+                break;
+            //MAR is destination constant
+            case 0b1010:
+                MAR &= memory[PC - 1];
+                break;
+            //MAR is destination memory address
+            case 0b1011:
+                MAR &= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //memory address MAR is pointer
+            case 0b1100:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] &= memory[MAR];
+                PC++;
+                break;
+            //memory address ACC
+            case 0b1101:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] &= ACC;
+                PC++;
+                break;
+            //memory address constant
+            case 0b1110:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] &= memory[PC - 1];
+                break;
+            //memory address memory address
+            case 0b1111:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] &= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            }
+        //OR
+        case 1:
+            switch (IR & 0x0F)
+            {
+            //MAR is pointer MAR is pointer
+            case 0b0000:
+                memory[MAR] |= memory[MAR];
+                PC++;
+                break;
+            //MAR is pointer ACC
+            case 0b0001:
+                memory[MAR] |= ACC;
+                PC++;
+                break;
+            //MAR is pointer constant
+            case 0b0010:
+                memory[MAR] |= memory[PC - 1];
+                break;
+            //MAR is pointer memory address
+            case 0b0011:
+                memory[MAR] |= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //ACC MAR is pointer
+            case 0b0100:
+                ACC |= memory[MAR];
+                break;
+            //ACC ACC
+            case 0b0101:
+                ACC |= ACC;
+                break;
+            //ACC constant
+            case 0b0110:
+                ACC |= memory[PC - 1];
+                break;
+            //ACC memory address
+            case 0b0111:
+                ACC |= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //MAR is destination MAR is pointer
+            case 0b1000:
+                MAR |= memory[MAR];
+                PC++;
+                break;
+            //MAR is destination ACC
+            case 0b1001:
+                MAR |= ACC;
+                PC++;
+                break;
+            //MAR is destination constant
+            case 0b1010:
+                MAR |= memory[PC - 1];
+                break;
+            //MAR is destination memory address
+            case 0b1011:
+                MAR |= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //memory address MAR is pointer
+            case 0b1100:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] |= memory[MAR];
+                PC++;
+                break;
+            //memory address ACC
+            case 0b1101:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] |= ACC;
+                PC++;
+                break;
+            //memory address constant
+            case 0b1110:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] |= memory[PC - 1];
+                break;
+            //memory address memory address
+            case 0b1111:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] |= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            }
+        //xor
+        case 2:
+            switch (IR & 0x0F)
+            {
+            //MAR is pointer MAR is pointer
+            case 0b0000:
+                memory[MAR] ^= memory[MAR];
+                PC++;
+                break;
+            //MAR is pointer ACC
+            case 0b0001:
+                memory[MAR] ^= ACC;
+                PC++;
+                break;
+            //MAR is pointer constant
+            case 0b0010:
+                memory[MAR] ^= memory[PC - 1];
+                break;
+            //MAR is pointer memory address
+            case 0b0011:
+                memory[MAR] ^= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //ACC MAR is pointer
+            case 0b0100:
+                ACC ^= memory[MAR];
+                break;
+            //ACC ACC
+            case 0b0101:
+                ACC ^= ACC;
+                break;
+            //ACC constant
+            case 0b0110:
+                ACC ^= memory[PC - 1];
+                break;
+            //ACC memory address
+            case 0b0111:
+                ACC ^= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //MAR is destination MAR is pointer
+            case 0b1000:
+                MAR ^= memory[MAR];
+                PC++;
+                break;
+            //MAR is destination ACC
+            case 0b1001:
+                MAR ^= ACC;
+                PC++;
+                break;
+            //MAR is destination constant
+            case 0b1010:
+                MAR ^= memory[PC - 1];
+                break;
+            //MAR is destination memory address
+            case 0b1011:
+                MAR ^= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //memory address MAR is pointer
+            case 0b1100:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] ^= memory[MAR];
+                PC++;
+                break;
+            //memory address ACC
+            case 0b1101:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] ^= ACC;
+                PC++;
+                break;
+            //memory address constant
+            case 0b1110:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] ^= memory[PC - 1];
+                break;
+            //memory address memory address
+            case 0b1111:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] ^= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            }
+        //ADD
+        case 3:
+            switch (IR & 0x0F)
+            {
+            //MAR is pointer MAR is pointer
+            case 0b0000:
+                memory[MAR] += memory[MAR];
+                PC++;
+                break;
+            //MAR is pointer ACC
+            case 0b0001:
+                memory[MAR] += ACC;
+                PC++;
+                break;
+            //MAR is pointer constant
+            case 0b0010:
+                memory[MAR] += memory[PC - 1];
+                break;
+            //MAR is pointer memory address
+            case 0b0011:
+                memory[MAR] += memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //ACC MAR is pointer
+            case 0b0100:
+                ACC += memory[MAR];
+                break;
+            //ACC ACC
+            case 0b0101:
+                ACC += ACC;
+                break;
+            //ACC constant
+            case 0b0110:
+                ACC += memory[PC - 1];
+                break;
+            //ACC memory address
+            case 0b0111:
+                ACC += memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //MAR is destination MAR is pointer
+            case 0b1000:
+                MAR += memory[MAR];
+                PC++;
+                break;
+            //MAR is destination ACC
+            case 0b1001:
+                MAR += ACC;
+                PC++;
+                break;
+            //MAR is destination constant
+            case 0b1010:
+                MAR += memory[PC - 1];
+                break;
+            //MAR is destination memory address
+            case 0b1011:
+                MAR += memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //memory address MAR is pointer
+            case 0b1100:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] += memory[MAR];
+                PC++;
+                break;
+            //memory address ACC
+            case 0b1101:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] += ACC;
+                PC++;
+                break;
+            //memory address constant
+            case 0b1110:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] += memory[PC - 1];
+                break;
+            //memory address memory address
+            case 0b1111:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] += memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            }
+        //sub
+        case 4:
+            switch (IR & 0x0F)
+            {
+            //MAR is pointer MAR is pointer
+            case 0b0000:
+                memory[MAR] -= memory[MAR];
+                PC++;
+                break;
+            //MAR is pointer ACC
+            case 0b0001:
+                memory[MAR] -= ACC;
+                PC++;
+                break;
+            //MAR is pointer constant
+            case 0b0010:
+                memory[MAR] -= memory[PC - 1];
+                break;
+            //MAR is pointer memory address
+            case 0b0011:
+                memory[MAR] -= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //ACC MAR is pointer
+            case 0b0100:
+                ACC -= memory[MAR];
+                break;
+            //ACC ACC
+            case 0b0101:
+                ACC -= ACC;
+                break;
+            //ACC constant
+            case 0b0110:
+                ACC -= memory[PC - 1];
+                break;
+            //ACC memory address
+            case 0b0111:
+                ACC -= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //MAR is destination MAR is pointer
+            case 0b1000:
+                MAR -= memory[MAR];
+                PC++;
+                break;
+            //MAR is destination ACC
+            case 0b1001:
+                MAR -= ACC;
+                PC++;
+                break;
+            //MAR is destination constant
+            case 0b1010:
+                MAR -= memory[PC - 1];
+                break;
+            //MAR is destination memory address
+            case 0b1011:
+                MAR -= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            //memory address MAR is pointer
+            case 0b1100:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] -= memory[MAR];
+                PC++;
+                break;
+            //memory address ACC
+            case 0b1101:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] -= ACC;
+                PC++;
+                break;
+            //memory address constant
+            case 0b1110:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] -= memory[PC - 1];
+                break;
+            //memory address memory address
+            case 0b1111:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] -= memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            }
+        //increment
+        case 5:
+            switch (IR & 0x0C)
+            {
+            //MAR is pointer
+            case 0b0000:
+                memory[MAR]++;
+                break;
+            //ACC
+            case 0b0100:
+                ACC++;
+                break;
+            //MAR is destination
+            case 0b1000:
+                MAR++;
+                break;
+            //memory address
+            case 0b1100:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]]++;
+                break;
+            }
+        //decrement
+        case 6:
+            switch (IR & 0x0C)
+            {
+            //MAR is pointer
+            case 0b0000:
+                memory[MAR]--;
+                break;
+            //ACC
+            case 0b0100:
+                ACC--;
+                break;
+            //MAR is destination
+            case 0b1000:
+                MAR--;
+                break;
+            //memory address
+            case 0b1100:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]]--;
+                break;
+            }
+        //not
+        case 7:
+            switch (IR & 0x0C)
+            {
+            //MAR is pointer
+            case 0b0000:
+                memory[MAR] = !memory[MAR];
+                break;
+            //ACC
+            case 0b0100:
+                ACC = !ACC;
+                break;
+            //MAR is destination
+            case 0b1000:
+                MAR = !MAR;
+                break;
+            //memory address
+            case 0b1100:
+                memory[(memory[PC - 2] << 8) + memory[PC - 1]] = !memory[(memory[PC - 2] << 8) + memory[PC - 1]];
+                break;
+            }
+        }
+    }
 
     //memory operations
-
-    /*else*/ if ((IR & 0xF0) == 0)
+    if ((IR & 0xF0) == 0)
     {
         switch (IR & 0x0F)
         {
@@ -213,15 +657,19 @@ void executeNextInstruction()
             break;
         case (1): //store ACC -> op ;this isnt a valid op, need to clarify w/ prof
 
-            break;
+        // case (0): // store ACC -> [op] (2 bytes of operand)
+        //     memory[(memory[PC - 2] << 8) + memory[PC - 1]] = ACC;
+        //     break;
+        // case (1): //store ACC -> op ;this isnt a valid op
+        //     break;
         case (2): //store ACC -> [MAR] (0 bytes of operand)
             memory[MAR] = ACC;
             break;
-        case (4):                                                 //store MAR -> [op] (2 bytes of operand)
-            memory[memory[PC - 1]] = MAR >> 8;                    //MSB
-            memory[memory[PC - 1] + 1] = MAR - ((MAR >> 8) << 8); //LSB
+        case (4):                                                                         //store MAR -> [op] (2 bytes of operand)
+            memory[(memory[PC - 2] << 8) + memory[PC - 1]] = MAR >> 8;                    //MSB
+            memory[(memory[PC - 2] << 8) + memory[PC - 1] + 1] = MAR - ((MAR >> 8) << 8); //LSB
             break;
-        case (5): //store MAR -> op ;this isnt a valid op, need to clarify w/ prof
+        case (5): //store MAR -> op ;this isnt a valid op
 
             break;
         case (6):                                      //store MAR -> [MAR] (0 bytes of operand)
@@ -230,6 +678,8 @@ void executeNextInstruction()
             break;
         case (8): //load [op] -> ACC (2 bytes of operand)
             ACC = memory[memory[PC - 1]];
+
+            ACC = memory[(memory[PC - 2] << 8) + memory[PC - 1]];
             break;
         case (9): //load op -> ACC (1 byte of operand)
             ACC = memory[PC - 1];
@@ -238,9 +688,9 @@ void executeNextInstruction()
             ACC = memory[MAR];
             break;
         case (12):                        //load [op] -> MAR (2 bytes of operand)
-            ACC = memory[memory[PC - 2]]; //MSB
-            ACC = ACC << 8;
-            ACC += memory[memory[PC - 1]]; //LSB
+            MAR = memory[memory[PC - 2]]; //MSB
+            MAR = MAR << 8;
+            MAR += memory[memory[PC - 1]]; //LSB
             break;
         case (13):                //load op -> MAR (2 bytes of operand)
             MAR = memory[PC - 2]; //MSB
@@ -301,7 +751,6 @@ void executeNextInstruction()
     else if (IR == HALT_OPCODE)
     {
         // Halt? exit()? stop()? sleep()?
-        sleep();
     }
     // Illegal
     else
@@ -318,4 +767,17 @@ void loadMem()
     {
         i++;
     }
+    fclose(mem);
+}
+void saveMem()
+{
+    FILE *mem;
+    mem = fopen("mem_out.txt", "w");
+    int i = 0;
+    while (i < 65536)
+    {
+        fprintf(mem, "%x %x %x %x %x %x %x %x %x %x\n", &memory[i], &memory[i + 1], &memory[i + 2], &memory[i + 3], &memory[i + 4], &memory[i + 5], &memory[i + 6], &memory[i + 7], &memory[i + 8], &memory[i + 9]);
+        i += 10;
+    }
+    fclose(mem);
 }
