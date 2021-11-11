@@ -6,6 +6,7 @@ Group Members: Callan Bailey, Benigno Digon, Charles Gilmore
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #define HALT_OPCODE 0x19
 
 void fetchNextInstruction(void);
@@ -132,19 +133,13 @@ void fetchNextInstruction()
         case (0): // store ACC -> [op] (2 bytes of operand)
             PC += 3;
             break;
-        case (1): //store ACC -> op ;this isnt a valid op, need to clarify w/ prof
-
-            break;
-        case (2): //store ACC -> [MAR] (0 bytes of operand)
+        case(2): //store ACC -> [MAR] (0 bytes of operand)
             PC++;
             break;
         case (4): //store MAR -> [op] (2 bytes of operand)
             PC += 3;
             break;
-        case (5): //store MAR -> op ;this isnt a valid op, need to clarify w/ prof
-
-            break;
-        case (6): //store MAR -> [MAR] (0 bytes of operand)
+        case(6): //store MAR -> [MAR] (0 bytes of operand)
             PC++;
             break;
         case (8): //load [op] -> ACC (2 bytes of operand)
@@ -652,29 +647,19 @@ void executeNextInstruction()
     {
         switch (IR & 0x0F)
         {
-        case (0): // store ACC -> [op] (2 bytes of operand)
-            memory[memory[PC - 1]] = ACC;
+        case(0):// store ACC -> [op] (2 bytes of operand)
+            memory[(memory[PC - 2] << 8) + memory[PC - 1]] = ACC;
             break;
-        case (1): //store ACC -> op ;this isnt a valid op, need to clarify w/ prof
-
-        // case (0): // store ACC -> [op] (2 bytes of operand)
-        //     memory[(memory[PC - 2] << 8) + memory[PC - 1]] = ACC;
-        //     break;
-        // case (1): //store ACC -> op ;this isnt a valid op
-        //     break;
-        case (2): //store ACC -> [MAR] (0 bytes of operand)
+        case(2): //store ACC -> [MAR] (0 bytes of operand)
             memory[MAR] = ACC;
             break;
         case (4):                                                                         //store MAR -> [op] (2 bytes of operand)
             memory[(memory[PC - 2] << 8) + memory[PC - 1]] = MAR >> 8;                    //MSB
             memory[(memory[PC - 2] << 8) + memory[PC - 1] + 1] = MAR - ((MAR >> 8) << 8); //LSB
-            break;
-        case (5): //store MAR -> op ;this isnt a valid op
-
-            break;
-        case (6):                                      //store MAR -> [MAR] (0 bytes of operand)
-            memory[MAR] = MAR >> 8;                    //MSB
-            memory[MAR + 1] = MAR - ((MAR >> 8) << 8); //LSB
+            break;\
+        case(6): //store MAR -> [MAR] (0 bytes of operand)
+            memory[MAR] = MAR >> 8;//MSB
+            memory[MAR + 1] = MAR - ((MAR >> 8) << 8);//LSB\
             break;
         case (8): //load [op] -> ACC (2 bytes of operand)
             ACC = memory[memory[PC - 1]];
@@ -708,7 +693,7 @@ void executeNextInstruction()
     // If the most significant five bits are 00010, then the opcode represents an unconditional or
     // conditional branch or jump. The opcode is always followed by a 16-bit operand that serves as
     // the memory address.
-    switch (IR & 0x07)
+    switch (IR & 0x87)
     {
     // BRA = 0b000 (Unconditional Branch/Branch always)
     case (0b00010000):
