@@ -762,7 +762,7 @@ void saveMem()
     int i = 0;
     while (i < 65536)
     {
-        fprintf(mem, "%x %x %x %x %x %x %x %x %x %x\n", &memory[i], &memory[i + 1], &memory[i + 2], &memory[i + 3], &memory[i + 4], &memory[i + 5], &memory[i + 6], &memory[i + 7], &memory[i + 8], &memory[i + 9]);
+        fprintf(mem, "%x %x %x %x %x %x %x %x %x %x\n", memory[i], memory[i + 1], memory[i + 2], memory[i + 3], memory[i + 4], memory[i + 5], memory[i + 6], memory[i + 7], memory[i + 8], memory[i + 9]);
         i += 10;
     }
     fclose(mem);
